@@ -2,7 +2,13 @@ using System.Linq;
 using UnityEngine;
 
 public class Simulation {
-    public delegate Snake.Direction GetAction(Snake.Direction dir);
+    public struct State {
+        public bool[] danger;
+        public Snake.Direction currentDir;
+        public Vector2Int relativeFoodPosition;
+    }
+
+    public delegate Snake.Direction GetAction(State dir);
 
     public Snake snake             = new Snake();
     public Vector2Int bounds       = new Vector2Int();
@@ -19,9 +25,29 @@ public class Simulation {
         snake.ResetLife();
     }
 
+    private State GetState() {
+        var state = new State {
+            currentDir = snake.moveDirection,
+            relativeFoodPosition = foodPosition - snake.headPosition,
+            danger = new bool[4] { false, false, false, false },
+        };
+
+        var snakeClone = snake.Clone();
+        for (int i = 0; i < 4; ++i) {
+            snakeClone.moveDirection = (Snake.Direction)i;
+            snakeClone.SimulateMove();
+            if(snake.CheckSelfCollision() || snake.CheckWallCollision(bounds)) {
+                state.danger[i] = true;
+            }
+            snakeClone.UndoSimulatedMove();
+        }
+
+        return state;
+    }
+
     public bool Update() {
         _moveTimer += Time.deltaTime;
-        snake.moveDirection = getAction.Invoke(snake.moveDirection);
+        snake.moveDirection = getAction.Invoke(GetState());
 
         if(_moveTimer >= moveDelay) {
             _moveTimer = 0.0f;

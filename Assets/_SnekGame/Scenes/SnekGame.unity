@@ -1131,7 +1131,7 @@ MonoBehaviour:
   _level: {fileID: 1396560228}
   _bounds: {x: 24, y: 18}
   _moveDelay: 0.2
-  _humanPlayer: 1
+  _humanPlayer: 0
 --- !u!114 &1470879357
 MonoBehaviour:
   m_ObjectHideFlags: 0

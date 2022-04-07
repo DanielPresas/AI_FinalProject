@@ -44,6 +44,13 @@ public class GameManager : MonoBehaviour {
                 getAction = GetHumanInput,
             };
         }
+        else {
+            sim = new Simulation {
+                bounds = _bounds,
+                moveDelay = 0.0f,
+                getAction = GetNeuralNetworkAction,
+            };
+        }
     }
 
     private void Update() {
@@ -80,19 +87,23 @@ public class GameManager : MonoBehaviour {
         UIManager.ResetToNewGeneration();
     }
 
-    private static Snake.Direction GetHumanInput(Snake.Direction currentDir) {
+    private static Snake.Direction GetNeuralNetworkAction(Simulation.State state) {
+        return (Snake.Direction)Random.Range(0, 4);
+    }
+
+    private static Snake.Direction GetHumanInput(Simulation.State state) {
         if(Input.GetKeyDown(KeyCode.UpArrow)) {
-            if(currentDir != Snake.Direction.Down)  { return Snake.Direction.Up;    }
+            if(state.currentDir != Snake.Direction.Down)  { return Snake.Direction.Up;    }
         }
         if(Input.GetKeyDown(KeyCode.DownArrow)) {
-            if(currentDir != Snake.Direction.Up)    { return Snake.Direction.Down;  }
+            if(state.currentDir != Snake.Direction.Up)    { return Snake.Direction.Down;  }
         }
         if(Input.GetKeyDown(KeyCode.RightArrow)) {
-            if(currentDir != Snake.Direction.Left)  { return Snake.Direction.Right; }
+            if(state.currentDir != Snake.Direction.Left)  { return Snake.Direction.Right; }
         }
         if(Input.GetKeyDown(KeyCode.LeftArrow)) {
-            if(currentDir != Snake.Direction.Right) { return Snake.Direction.Left;  }
+            if(state.currentDir != Snake.Direction.Right) { return Snake.Direction.Left;  }
         }
-        return currentDir;
+        return state.currentDir;
     }
 }

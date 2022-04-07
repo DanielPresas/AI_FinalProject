@@ -1,16 +1,17 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Snake {
     public enum Direction {
-        Up,
-        Down,
-        Left,
-        Right,
+        Up    = 0,
+        Down  = 1,
+        Left  = 2,
+        Right = 3,
     }
 
-    public Vector2Int headPosition = new Vector2Int(12, 9);
     public Direction moveDirection = Direction.Right;
+    public Vector2Int headPosition = new Vector2Int(12, 9);
     public float viewAngle = 90.0f;
 
     public int bodySize = 1;
@@ -24,6 +25,8 @@ public class Snake {
             return list;
         }
     }
+
+    private Vector2Int _cachedHeadPosition = new Vector2Int(0, 0);
 
     public Snake() {
         moves.Capacity      = 100;
@@ -42,6 +45,19 @@ public class Snake {
         directions.Add(90.0f);
     }
 
+    public Snake Clone() {
+        var clone = new Snake {
+            headPosition = headPosition,
+            moveDirection = moveDirection,
+            viewAngle = viewAngle,
+            bodySize = bodySize,
+            moves = moves.ToList(),
+            directions = directions.ToList(),
+        };
+
+        return clone;
+    }
+
     public void Move() {
         var moveDir = new Vector2Int();
         switch(moveDirection) {
@@ -57,6 +73,23 @@ public class Snake {
 
         while(moves.Count      > bodySize) { moves.RemoveAt(moves.Count - 1); }
         while(directions.Count > bodySize) { directions.RemoveAt(directions.Count - 1); }
+    }
+
+    public void SimulateMove() {
+        _cachedHeadPosition = headPosition;
+
+        var moveDir = new Vector2Int();
+        switch(moveDirection) {
+            case Direction.Right: { moveDir.x = +1; break; }
+            case Direction.Left:  { moveDir.x = -1; break; }
+            case Direction.Up:    { moveDir.y = +1; break; }
+            case Direction.Down:  { moveDir.y = -1; break; }
+        }
+        headPosition += moveDir;
+    }
+
+    public void UndoSimulatedMove() {
+        headPosition = _cachedHeadPosition;
     }
 
     public void AddToBody() => bodySize += 1;
